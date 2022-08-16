@@ -9,6 +9,9 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.6",
+    "bootstrap": "^5.2.0",
+    "popper.js": "^1.16.1",
     "vue": "^3.2.37"
   },
   "devDependencies": {

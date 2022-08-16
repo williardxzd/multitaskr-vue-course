@@ -1,40 +1,40 @@
 <template>
     <main>
-        <Total v-model="total" :subtotal="subtotal"></Total>
-        {{ total }}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Url</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(pokemon, index) in pokemons">
+                    <td>{{ index }}</td>
+                    <td>{{ pokemon.name }}</td>
+                    <td>{{ pokemon.url }}</td>
+                </tr>
+            </tbody>
+        </table>
     </main>
 </template>
 
 <script>
-    import Total from './components/Total.vue';
+export default {
+    data() {
+        return {
+            pokemons: []
+        };
+    },
 
-    export default {
-        components: {
-            Total
-        },
-
-        data() {
-            return {
-                total: 0,
-                subtotal: 10000
-            }
-        },
-
-        async created() {
-            let response = await fetch('totals.json')
-            let body = await response.json()
-
-            this.total = body.data.total
-        },
-
-        mounted() {
-
-        },
-
-        watch: {
-            total: function(newValue) {
-                console.log(newValue)
-            }
+    async created() {
+        try {
+            let response = await fetch('https://pokeapi.co/api/v2/pokemon');
+            let body = await response.json();
+            this.pokemons = body.results;
+        } catch(e) {
+            console.error(e)
         }
-    }
+    },
+};
 </script>
