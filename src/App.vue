@@ -1,12 +1,49 @@
 <template>
   <main>
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="exampleModal"
+      tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">{{ drinkTitle }}</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <img :src="image" style="width: 100%" />
+            <p>{{ instructions }}</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <button class="btn"></button>
     <table class="table">
       <thead>
         <tr>
           <th scope="col">#</th>
-          <th scope="col">Nombre</th>
-          <th scope="col">Url</th>
+          <th scope="col">Name</th>
+          <th scope="col">Image</th>
+          <th scope="col">Instructions</th>
         </tr>
       </thead>
       <tbody>
@@ -14,70 +51,38 @@
           <td>{{ index }}</td>
           <td>{{ drink.strDrink }}</td>
           <td><img :src="drink.strDrinkThumb" style="width: 150px" /></td>
-          <td><button type="button" class="btn btn-primary">Detail</button></td>
+          <td>
+            <!-- Button trigger modal -->
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#exampleModal"
+              @click="
+                loadDetail(
+                  drink.strDrink,
+                  drink.strDrinkThumb,
+                  drink.strInstructions
+                )
+              "
+            >
+              Instructions
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
-
-    <!-- Button trigger modal -->
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-toggle="modal"
-      data-target="#exampleModal"
-    >
-      Launch demo modal
-    </button>
-
-    <!-- Modal -->
-    <div
-      class="modal fade"
-      id="exampleModal"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="exampleModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">...</div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-dismiss="modal"
-            >
-              Close
-            </button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </main>
 </template>
 
 <script>
-import { Modal } from 'bootstrap';
-
 export default {
-    component: {
-    Modal
-    },
   data() {
     return {
       drinks: [],
+      drinkTitle: "",
+      instructions: "",
+      image: "",
     };
   },
 
@@ -87,11 +92,21 @@ export default {
         "https://www.thecocktaildb.com/api/json/v1/1/search.php?f=a"
       );
       let body = await response.json();
-      console.log(body.drinks);
       this.drinks = body.drinks;
     } catch (e) {
       console.error(e);
     }
+  },
+
+  methods: {
+    loadDetail(drink, image, instructions) {
+      this.drinkTitle = drink;
+      //console.log(drink)
+      this.image = image;
+      //console.log(image)
+      this.instructions = instructions;
+      //console.log(instructions)
+    },
   },
 };
 </script>
