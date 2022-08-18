@@ -13,19 +13,21 @@
                     <td>{{ index }}</td>
                     <td>{{ pokemon.name }}</td>
                     <td>{{ pokemon.url }}</td>
+                    <td>
+                        <button
+                            id="toggleMyModal"
+                            type="button"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#exampleModal"
+                            @click="openModal(pokemon)"
+                        >
+                            Launch demo modal
+                        </button>
+                    </td>
                 </tr>
             </tbody>
         </table>
-
-        <!-- Button trigger modal -->
-        <button
-            type="button"
-            class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#exampleModal"
-        >
-            Launch demo modal
-        </button>
 
         <!-- Modal -->
         <div
@@ -36,10 +38,10 @@
             aria-hidden="true"
         >
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-content" v-if="this.selected_pokemon">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">
-                            Modal title
+                            {{ this.selected_pokemon.name }}
                         </h5>
                         <button
                             type="button"
@@ -48,18 +50,25 @@
                             aria-label="Close"
                         ></button>
                     </div>
-                    <div class="modal-body">...</div>
+                    <div class="modal-body">
+                        {{ this.selected_pokemon.url }}
+                    </div>
                     <div class="modal-footer">
                         <button
                             type="button"
                             class="btn btn-secondary"
                             data-bs-dismiss="modal"
+                            @click="selected_pokemon = null"
                         >
                             Close
                         </button>
-                        <button type="button" class="btn btn-primary">
-                            Save changes
-                        </button>
+                    </div>
+                </div>
+                <div class="modal-content" v-else>
+                    <div class="modal-body">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -72,6 +81,7 @@ export default {
     data() {
         return {
             pokemons: [],
+            selected_pokemon: null
         };
     },
 
@@ -84,5 +94,19 @@ export default {
             console.error(e);
         }
     },
+
+    methods: {
+        async openModal(pokemon) {
+            try {
+                let response = await fetch(pokemon.url);
+                let body = await response.json();
+                setTimeout(() => {
+                    this.selected_pokemon = body;
+                }, 3000)
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }
 };
 </script>
