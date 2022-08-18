@@ -1,40 +1,73 @@
 <template>
+
     <main>
-        <table class="table">
+        <table border="1" class="table table-hover table-dark ">
             <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Nombre</th>
-                    <th scope="col">Url</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">View more</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(pokemon, index) in pokemons">
+                <tr v-for="(user, index) in users" :key="user.id">
                     <td>{{ index }}</td>
-                    <td>{{ pokemon.name }}</td>
-                    <td>{{ pokemon.url }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+            <!-- Button trigger modal -->
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#exampleModal"
+              @click="
+                loadDetail(
+                  street,
+                  city,
+                  zipcode
+                )
+              "
+            >
+              More information
+            </button>
+            </td>
                 </tr>
+               
             </tbody>
         </table>
     </main>
 </template>
 
 <script>
+
+
+import axios from 'axios'
 export default {
+    
     data() {
+        
         return {
-            pokemons: []
+           users:[]
         };
     },
 
-    async created() {
-        try {
-            let response = await fetch('https://pokeapi.co/api/v2/pokemon');
-            let body = await response.json();
-            this.pokemons = body.results;
-        } catch(e) {
-            console.error(e)
-        }
+    mounted (){
+this.getUsers();
+
     },
+    methods: {
+        getUsers(){
+            axios
+            .get('https://jsonplaceholder.typicode.com/users')
+                     .then( response => {
+                        this.users = response.data
+                        
+                        }).catch(e=> console.log(e))
+        },
+        
+    },
+ 
 };
 </script>
