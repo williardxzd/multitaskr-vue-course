@@ -70,9 +70,9 @@
               v-if="this.opc"
               type="button"
               class="btn btn-secondary"
-              @click="previusPokemon(pokemons)"
+              @click="previousPokemon(pokemons)"
             >
-              Previus
+              Previous
             </button>
             <button
               type="button"
@@ -136,7 +136,10 @@ export default {
     },
 
     async nextPokemon(pokemons) {
-      this.opc++;
+      if (this.opc<19) {
+        this.opc++;
+      }
+      
       try {
         let response = await fetch(pokemons[this.opc].url);
         let body = await response.json();
@@ -146,7 +149,7 @@ export default {
       }
     },
 
-    async previusPokemon(pokemons) {
+    async previousPokemon(pokemons) {
       this.opc--;
       try {
         let response = await fetch(pokemons[this.opc].url);
