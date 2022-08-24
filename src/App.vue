@@ -1,5 +1,30 @@
 <template>
   <main>
+    <p class="d-flex py-5">
+      <select v-model="limit" class="form-select">
+        <option v-for="index in [20, 40, 80, 160, 200]" 
+          :value="index">{{ index }}
+        </option>
+      </select>
+
+      <button
+        type="button"
+        class="btn btn-primary mx-4"
+        :disabled="offset <= 0"
+        @click="offset -= limit"
+      >
+        Previous
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        :disabled="(offset + limit) >= total"
+        @click="offset += limit"
+      >
+        Next
+      </button>
+    </p>
+
     <table class="table">
       <thead>
         <tr>
@@ -10,7 +35,7 @@
       </thead>
       <tbody>
         <tr v-for="(pokemon, index) in pokemons" :key="pokemon.name">
-          <td>{{ index }}</td>
+          <td>{{ currentPokemonId(index) }}</td>
           <td>{{ pokemon.name }}</td>
           <td>{{ pokemon.url }}</td>
           <td>
@@ -20,7 +45,7 @@
               class="btn btn-primary"
               data-bs-toggle="modal"
               data-bs-target="#exampleModal"
-              @click="openModal(pokemon)"
+              @click="findPokemon(currentPokemonId(index))"
             >
               Pokemon Detail
             </button>
@@ -151,14 +176,14 @@
               v-if="this.selected_pokemon.id > 1"
               type="button"
               class="btn btn-primary"
-              @click="loadPreviousPokemon(this.selected_pokemon.id)"
+              @click="loadNextPokemon(this.selected_pokemon.id, -1)"
             >
               Previous
             </button>
             <button
               type="button"
               class="btn btn-primary"
-              @click="loadNextPokemon(this.selected_pokemon.id)"
+              @click="loadNextPokemon(this.selected_pokemon.id, 1)"
             >
               Next
             </button>
@@ -182,8 +207,10 @@ export default {
     return {
       pokemons: [],
       selected_pokemon: null,
+      next_pokemon_id: null,
       offset: 0,
-      lastOffset: 20,
+      limit: 20,
+      total: 0
     };
   },
 
@@ -191,82 +218,64 @@ export default {
     await this.initTable();
   },
 
+  watch: {
+    next_pokemon_id: function(value) {
+      if (value > this.offset + this.limit) {
+        this.offset += 20;
+      } else if (value < this.offset) {
+        this.offset -= 20;
+      }
+
+      this.findPokemon(value);
+    },
+
+    offset: function(value) {
+      this.initTable();
+    },
+
+    limit: function(value) {
+      this.initTable();
+    }
+  },
+
+
   methods: {
     async initTable() {
       try {
         let response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon?limit=20&offset=${this.offset}`
+          `https://pokeapi.co/api/v2/pokemon?limit=${this.limit}&offset=${this.offset}`
         );
         let body = await response.json();
         this.pokemons = body.results;
-        console.log(body.results);
+        this.total = body.count;
       } catch (e) {
         console.error(e);
       }
     },
 
-    async openModal(pokemon) {
-      try {
-        console.log(pokemon);
-        let response = await fetch(pokemon.url);
-        let body = await response.json();
-        setTimeout(() => {
-          this.selected_pokemon = body;
-          console.log(body);
-        }, 3000);
-      } catch (e) {
-        console.error(e);
-      }
+    loadNextPokemon(pokemon_id, index) { // 9 , -1
+      this.next_pokemon_id = pokemon_id + (index); // 9 + (-1)
     },
 
-    async loadPreviousPokemon(currentPokemonID) {
-      try {
-        this.selected_pokemon = null;
-        let previousPokemonID = currentPokemonID - 1;
-        if (previousPokemonID <= this.offset) {
-          //reload table
-          this.offset = this.offset - 20;
-          this.lastOffset = this.lastOffset - 20;
-          this.initTable();
-        }
+    currentPokemonId(index) {
+      return (index + 1) + this.offset;
+    },
 
+    async findPokemon(id) {
+      this.selected_pokemon = null;
+      
+      try {
         let response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon/${previousPokemonID}/`
+          `https://pokeapi.co/api/v2/pokemon/${id}/`
         );
 
         let body = await response.json();
-        setTimeout(() => {
-          this.selected_pokemon = body;
-          console.log(body.types);
-        }, 3000);
+
+        this.selected_pokemon = body;
       } catch (e) {
         console.error(e);
       }
-    },
-
-    async loadNextPokemon(currentPokemonID) {
-      try {
-        this.selected_pokemon = null;
-        let nextPokemonID = currentPokemonID + 1;
-        if (nextPokemonID > this.lastOffset) {
-          //reload table
-          this.offset = this.offset + 20;
-          this.lastOffset = this.lastOffset + 20;
-          this.initTable();
-        }
-
-        let response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon/${nextPokemonID}/`
-        );
-        let body = await response.json();
-        setTimeout(() => {
-          this.selected_pokemon = body;
-          console.log(body.types);
-        }, 3000);
-      } catch (e) {
-        console.error(e);
-      }
-    },
+    }
   },
 };
 </script>
