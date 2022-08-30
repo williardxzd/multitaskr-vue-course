@@ -30,6 +30,7 @@
 </template>
 <script>
 export default {
+
   props: ["modelValue"],
 
   data() {
@@ -42,6 +43,7 @@ export default {
     api_params: {
       deep: true,
       handler(value, old) {
+        console.log('new offset: ' + value.offset);
         this.$emit("input", value);
       },
     },
