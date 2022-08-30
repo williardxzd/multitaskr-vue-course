@@ -1,29 +1,8 @@
 <template>
   <main>
-    <p class="d-flex py-5">
-      <select v-model="limit" class="form-select">
-        <option v-for="index in [20, 40, 80, 160, 200]" 
-          :value="index">{{ index }}
-        </option>
-      </select>
 
-      <button
-        type="button"
-        class="btn btn-primary mx-4"
-        :disabled="offset <= 0"
-        @click="offset -= limit"
-      >
-        Previous
-      </button>
-      <button
-        type="button"
-        class="btn btn-primary"
-        :disabled="(offset + limit) >= total"
-        @click="offset += limit"
-      >
-        Next
-      </button>
-    </p>
+    <pagination v-model="form"></pagination>
+    
 
     <table class="table">
       <thead>
@@ -198,19 +177,28 @@
         </div>
       </div>
     </div>
+
+    <pagination v-model="form"></pagination>
   </main>
 </template>
 
 <script>
+
+import pagination from "./components/pagination.vue";
+
 export default {
   data() {
     return {
       pokemons: [],
       selected_pokemon: null,
       next_pokemon_id: null,
+
+      form: {
       offset: 0,
       limit: 20,
       total: 0
+      }
+      
     };
   },
 
@@ -220,21 +208,20 @@ export default {
 
   watch: {
     next_pokemon_id: function(value) {
-      if (value > this.offset + this.limit) {
-        this.offset += 20;
-      } else if (value < this.offset) {
-        this.offset -= 20;
+      if (value > this.form.offset + this.form.limit) {
+        this.form.offset += 20;
+      } else if (value < this.form.offset) {
+        this.form.offset -= 20;
       }
 
       this.findPokemon(value);
     },
 
-    offset: function(value) {
+    form: {
+      deep: true,
+      handler (value){
       this.initTable();
-    },
-
-    limit: function(value) {
-      this.initTable();
+      }
     }
   },
 
@@ -243,11 +230,11 @@ export default {
     async initTable() {
       try {
         let response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon?limit=${this.limit}&offset=${this.offset}`
+          `https://pokeapi.co/api/v2/pokemon?limit=${this.form.limit}&offset=${this.form.offset}`
         );
         let body = await response.json();
         this.pokemons = body.results;
-        this.total = body.count;
+        this.form.total = body.count;
       } catch (e) {
         console.error(e);
       }
@@ -258,7 +245,7 @@ export default {
     },
 
     currentPokemonId(index) {
-      return (index + 1) + this.offset;
+      return (index + 1) + this.form.offset;
     },
 
     async findPokemon(id) {
@@ -277,5 +264,10 @@ export default {
       }
     }
   },
+
+  components: {
+    pagination
+  }
+
 };
 </script>
