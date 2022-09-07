@@ -2,7 +2,10 @@
     <p class="d-flex py-5">
       <select v-model="form.limit" class="form-select">
         <option v-for="index in [20, 40, 80, 160, 200]" 
-          :value="index">{{ index }}
+          :value="index">
+          <slot name="options" :value="index">
+            {{ index }}
+          </slot>
         </option>
       </select>
 
@@ -12,15 +15,19 @@
         :disabled="form.offset <= 0"
         @click="form.offset -= form.limit"
       >
-        Previous
+        <slot name="previous">
+          Previous
+        </slot>
       </button>
       <button
         type="button"
         class="btn btn-primary"
         :disabled="(form.offset + form.limit) >= form.total"
-        @click="form.offset += form.limit"
+        @click="onNextClick"
       >
-        Next
+        <slot name="next">
+          Next
+        </slot>
       </button>
     </p>
 </template>
@@ -42,6 +49,13 @@ export default {
         this.$emit('input', value)
       }
     }
-  }  
+  },
+
+  methods: {
+    onNextClick() {
+      this.form.offset += this.form.limit
+      this.$emit('next', true);
+    }
+  }
 }
 </script>

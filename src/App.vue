@@ -1,6 +1,31 @@
 <template>
   <main>
-    <Pagination v-model="form"></Pagination>
+    <!-- Header -->
+    <Pagination v-model="form" @next="onNextClicked">
+      <template v-slot:options="slot_object">
+        {{ slot_object.value }} Items
+      </template>
+    </Pagination>
+
+    <Table :items="pokemons" :head="false">
+      <template v-slot:item="value">
+        <td>{{ currentPokemonId(value.index) }}</td>
+        <td>{{ value.item.name }}</td>
+        <td>{{ value.item.url }}</td>
+        <td>
+          <button
+            id="toggleMyModal"
+            type="button"
+            class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#exampleModal"
+            @click="findPokemon(currentPokemonId(index))"
+          >
+            Pokemon Detail
+          </button>
+        </td>
+      </template>
+    </Table>
 
     <table class="table">
       <thead>
@@ -30,8 +55,17 @@
         </tr>
       </tbody>
     </table>
+    
+    <!-- Footer -->
+    <Pagination v-model="form">
+      <template v-slot:previous>
+        &lt;-
+      </template>
 
-    <Pagination v-model="form"></Pagination>
+      <template v-slot:next>
+        -&gt;
+      </template>
+    </Pagination>
 
     <!-- Modal -->
     <div
@@ -182,6 +216,7 @@
 
 <script>
 import Pagination from './components/Pagination.vue';
+import Table from './components/Table.vue';
 
 export default {
   data() {
@@ -256,11 +291,16 @@ export default {
       } catch (e) {
         console.error(e);
       }
+    },
+
+    onNextClicked(event) {
+      console.log('Next pressed', event)
     }
   },
 
   components: {
-    Pagination
+    Pagination,
+    Table
   }
 };
 </script>
